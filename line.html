@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Best Friends</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* LINE App Container */
+        .line-container {
+            width: 100%;
+            max-width: 480px;
+            height: 100%;
+            max-height: 844px;
+            background-color: #7b8de6;
+            background-image: linear-gradient(rgba(123, 141, 230, 0.88), rgba(123, 141, 230, 0.88));
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+
+        @media (min-width: 481px) {
+            .line-container {
+                border-radius: 24px;
+                height: 90vh;
+            }
+        }
+
+        /* Modern LINE Header */
+        .line-header {
+            background-color: #1a1c23;
+            color: white;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 10;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .back-arrow {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .group-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .group-title {
+            font-size: 15px;
+            font-weight: 500;
+            letter-spacing: -0.2px;
+        }
+
+        .member-count {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+        .header-icons {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0;
+        }
+
+        .icon-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        /* Chat Body Area */
+        .line-body {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Date Divider & System Notice */
+        .date-divider {
+            text-align: center;
+            margin: 6px 0;
+        }
+
+        .date-divider span {
+            background-color: rgba(0, 0, 0, 0.18);
+            color: white;
+            font-size: 11px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: 400;
+        }
+
+        .system-message {
+            text-align: center;
+            margin: 4px 0;
+        }
+
+        .system-message span {
+            background-color: rgba(0, 0, 0, 0.22);
+            color: #ffffff;
+            font-size: 11.5px;
+            padding: 5px 14px;
+            border-radius: 14px;
+            display: inline-block;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        /* Message Rows */
+        .message-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            max-width: 88%;
+        }
+
+        .message-row.incoming {
+            align-self: flex-start;
+        }
+
+        /* Sender Avatar & Name */
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        .avatar:hover {
+            transform: scale(1.05);
+        }
+
+        .message-content-wrapper {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sender-name {
+            font-size: 11.5px;
+            color: #ffffff;
+            margin-bottom: 3px;
+            font-weight: 400;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.25);
+            cursor: pointer;
+        }
+
+        .sender-name:hover {
+            text-decoration: underline;
+        }
+
+        .message-bubble-group {
+            display: flex;
+            align-items: flex-end;
+            gap: 6px;
+        }
+
+        /* Text Bubbles */
+        .bubble {
+            background-color: #ffffff;
+            padding: 9px 13px;
+            border-radius: 16px;
+            font-size: 14px;
+            color: #111111;
+            word-break: normal;
+            overflow-wrap: break-word;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+            line-height: 1.4;
+            border-top-left-radius: 4px;
+        }
+
+        /* Photo Message Container with Reaction Pop-up */
+        .photo-container {
+            position: relative;
+        }
+
+        /* LINE Reaction Menu Pop-up for Photo */
+        .reaction-menu {
+            position: absolute;
+            top: -45px;
+            left: 0;
+            background: #ffffff;
+            border-radius: 30px;
+            padding: 4px 10px;
+            display: flex;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            transform: translateY(6px);
+            z-index: 20;
+        }
+
+        .photo-container:hover .reaction-menu,
+        .reaction-menu.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .reaction-icon {
+            font-size: 20px;
+            cursor: pointer;
+            transition: transform 0.15s;
+        }
+
+        .reaction-icon:hover {
+            transform: scale(1.25);
+        }
+
+        /* Photo Message styling */
+        .photo-bubble {
+            padding: 3px;
+            border-radius: 14px;
+            background: #ffffff;
+            cursor: pointer;
+            overflow: hidden;
+            max-width: 220px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+            border-top-left-radius: 4px;
+        }
+
+        .photo-bubble img {
+            width: 100%;
+            border-radius: 12px;
+            display: block;
+            transition: transform 0.15s ease;
+        }
+
+        .photo-bubble img:hover {
+            transform: scale(0.98);
+        }
+
+        /* Reactions Displayed below the photo */
+        .message-reactions {
+            display: flex;
+            gap: 4px;
+            margin-top: 4px;
+            align-self: flex-start;
+        }
+
+        .reaction-badge {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 11.5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            border: 1px solid rgba(0,0,0,0.04);
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+
+        .reaction-badge:hover {
+            background: #f0f0f0;
+        }
+
+        /* Meta (Time) */
+        .message-meta {
+            display: flex;
+            flex-direction: column;
+            font-size: 10px;
+            color: #f3f4f6;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.25);
+            white-space: nowrap;
+            justify-content: flex-end;
+            line-height: 1.3;
+        }
+
+        /* Modern Footer / Input Area */
+        .line-footer {
+            background-color: #ffffff;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-top: 1px solid #eaeaea;
+        }
+
+        .footer-action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #555555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px;
+        }
+
+        .footer-action-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .input-box {
+            flex: 1;
+            background-color: #f4f4f6;
+            border: none;
+            border-radius: 20px;
+            padding: 9px 16px;
+            font-size: 14px;
+            outline: none;
+            color: #111;
+        }
+
+        .input-box::placeholder {
+            color: #9ca3af;
+        }
+
+        /* Lightbox modal for photo view */
+        .lightbox {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+            z-index: 100;
+        }
+
+        .lightbox.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .lightbox img {
+            max-width: 92%;
+            max-height: 82%;
+            border-radius: 6px;
+            object-fit: contain;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            color: white;
+            font-size: 32px;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        /* LINE Style Reaction Details Modal */
+        .reaction-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 200;
+        }
+
+        .reaction-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .reaction-modal-content {
+            background: #ffffff;
+            width: 86%;
+            max-width: 320px;
+            border-radius: 14px;
+            padding: 20px 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            animation: scaleUp 0.2s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes scaleUp {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .reaction-modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #111;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .reaction-user-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 240px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .reaction-user-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 2px 4px;
+        }
+
+        .reaction-user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .reaction-user-info:hover .reaction-user-name {
+            text-decoration: underline;
+        }
+
+        .reaction-user-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .reaction-user-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #111;
+        }
+
+        .reaction-user-emoji {
+            font-size: 20px;
+        }
+
+        .reaction-modal-close {
+            background: #06c755;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* LINE Profile Page Overlay */
+        .profile-page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #2b2b2b;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 300;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .profile-page.active {
+            transform: translateY(0);
+        }
+
+        .profile-header {
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+        }
+
+        .profile-close-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 4px;
+        }
+
+        .profile-close-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .profile-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 0 20px 40px 20px;
+        }
+
+        .profile-avatar-container {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid rgba(255,255,255,0.8);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            margin-bottom: 14px;
+            background: #fff;
+        }
+
+        .profile-avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffffff;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+            margin-bottom: 6px;
+        }
+
+        .profile-status {
+            font-size: 13px;
+            color: #e5e7eb;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+            margin-bottom: 30px;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 24px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .profile-action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .profile-action-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .profile-action-btn:hover .profile-action-icon {
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        .profile-action-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="line-container">
+        <!-- Modern LINE Header -->
+        <div class="line-header">
+            <div class="header-left">
+                <button class="back-arrow icon-btn">
+                    <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div class="group-info">
+                    <div class="group-title">Best Friends</div>
+                    <div class="member-count">4</div>
+                </div>
+            </div>
+            <div class="header-icons">
+                <button class="icon-btn" title="Call">
+                    <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <button class="icon-btn" title="Search">
+                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </button>
+                <button class="icon-btn" title="Menu">
+                    <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat Body -->
+        <div class="line-body">
+            <div class="date-divider">
+                <span>Today</span>
+            </div>
+
+            <!-- System Join Messages -->
+            <div class="system-message">
+                <span>Riku💯 joined the group.</span>
+            </div>
+            <div class="system-message">
+                <span>✨️Mark✨️ joined the group.</span>
+            </div>
+            <div class="system-message">
+                <span>Dinu💰 joined the group.</span>
+            </div>
+
+            <!-- Incoming Text Message -->
+            <div class="message-row incoming">
+                <img src="kaguya.webp" alt="Avatar" class="avatar" onclick="openProfile('kaguya')">
+                <div class="message-content-wrapper">
+                    <div class="sender-name" onclick="openProfile('kaguya')">Kaguya🌙👑</div>
+                    <div class="message-bubble-group">
+                        <div class="bubble">Thanks for the wonderful summer, guys! See you again someday</div>
+                        <div class="message-meta">
+                            <span>10:42 AM</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Incoming Photo Message with Reactions underneath -->
+            <div class="message-row incoming">
+                <div style="width: 36px;"></div>
+                <div class="message-content-wrapper">
+                    <div class="message-bubble-group">
+                        <div class="photo-container">
+                            <!-- Pop-up Reaction Menu -->
+                            <div class="reaction-menu">
+                                <span class="reaction-icon" title="Thumbs Up">👍</span>
+                                <span class="reaction-icon" title="Heart">❤️</span>
+                                <span class="reaction-icon" title="Crying">😢</span>
+                            </div>
+                            <!-- Photo Bubble -->
+                            <div class="photo-bubble" onclick="openLightbox('photo.webp')">
+                                <img src="photo.webp" alt="Group photo">
+                            </div>
+                        </div>
+                        <div class="message-meta">
+                            <span>10:43 AM</span>
+                        </div>
+                    </div>
+                    <!-- Visible Reactions Displayed Under the Photo -->
+                    <div class="message-reactions">
+                        <div class="reaction-badge" onclick="openReactionModal()">
+                            👍 ❤️ 😢 3
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modern LINE Footer Input -->
+        <div class="line-footer">
+            <button class="footer-action-btn" title="Add">
+                <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <button class="footer-action-btn" title="Camera">
+                <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </button>
+            <input type="text" class="input-box" placeholder="Aa">
+            <button class="footer-action-btn" title="Stickers & Emoji">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+            </button>
+        </div>
+
+        <!-- Lightbox for Image Zoom -->
+        <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+            <button class="lightbox-close">&times;</button>
+            <img id="lightbox-img" src="" alt="Zoomed photo">
+        </div>
+
+        <!-- Unified LINE Reaction Details Modal -->
+        <div class="reaction-modal" id="reactionModal" onclick="closeReactionModal(event)">
+            <div class="reaction-modal-content" onclick="event.stopPropagation()">
+                <div class="reaction-modal-title">Reactions</div>
+                <div class="reaction-user-list">
+                    <!-- Riku -->
+                    <div class="reaction-user-item">
+                        <div class="reaction-user-info" onclick="openProfile('riku')">
+                            <img src="riku.webp" alt="Riku" class="reaction-user-avatar">
+                            <span class="reaction-user-name">Riku💯</span>
+                        </div>
+                        <span class="reaction-user-emoji">👍</span>
+                    </div>
+                    <!-- Mark -->
+                    <div class="reaction-user-item">
+                        <div class="reaction-user-info" onclick="openProfile('mark')">
+                            <img src="mark.webp" alt="Mark" class="reaction-user-avatar">
+                            <span class="reaction-user-name">✨️Mark✨️</span>
+                        </div>
+                        <span class="reaction-user-emoji">❤️</span>
+                    </div>
+                    <!-- Dinu -->
+                    <div class="reaction-user-item">
+                        <div class="reaction-user-info" onclick="openProfile('dinu')">
+                            <img src="dinu.webp" alt="Dinu" class="reaction-user-avatar">
+                            <span class="reaction-user-name">Dinu💰</span>
+                        </div>
+                        <span class="reaction-user-emoji">😢</span>
+                    </div>
+                </div>
+                <button class="reaction-modal-close" onclick="closeReactionModal()">OK</button>
+            </div>
+        </div>
+
+        <!-- LINE User Profile Page Overlay -->
+        <div class="profile-page" id="profilePage">
+            <div class="profile-header">
+                <button class="profile-close-btn" onclick="closeProfile()">
+                    <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="profile-body">
+                <div class="profile-avatar-container">
+                    <img id="profileAvatar" src="" alt="Profile Avatar">
+                </div>
+                <div class="profile-name" id="profileName">Name</div>
+                <div class="profile-status" id="profileStatus">Status message</div>
+                <div class="profile-actions">
+                    <button class="profile-action-btn" onclick="closeProfile()">
+                        <div class="profile-action-icon">
+                            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        </div>
+                        Chat
+                    </button>
+                    <button class="profile-action-btn">
+                        <div class="profile-action-icon">
+                            <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                        </div>
+                        Call
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const profiles = {
+            kaguya: {
+                name: "Kaguya🌙👑",
+                status: "✨ Cherish every moment ✨",
+                avatar: "kaguya.webp",
+                bg: "kaguya2.webp"
+            },
+            riku: {
+                name: "Riku💯",
+                status: "🔥 Eiken 1級 🔥",
+                avatar: "riku.webp",
+                bg: "riku2.webp"
+            },
+            mark: {
+                name: "✨️Mark✨️",
+                status: "No basketball no life 🏀",
+                avatar: "mark.webp",
+                bg: "mark2.webp"
+            },
+            dinu: {
+                name: "Dinu💰",
+                status: "I love money $$$",
+                avatar: "dinu.webp",
+                bg: "dinu2.webp"
+            }
+        };
+
+        function openLightbox(imgSrc) {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            lightboxImg.src = imgSrc;
+            lightbox.classList.add('active');
+        }
+
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            lightbox.classList.remove('active');
+        }
+
+        function openReactionModal() {
+            document.getElementById('reactionModal').classList.add('active');
+        }
+
+        function closeReactionModal() {
+            document.getElementById('reactionModal').classList.remove('active');
+        }
+
+        function openProfile(userKey) {
+            const profile = profiles[userKey];
+            if (!profile) return;
+
+            // Close the reaction modal if it's open so it doesn't block the view
+            closeReactionModal();
+
+            // Set dynamic profile details
+            document.getElementById('profileAvatar').src = profile.avatar;
+            document.getElementById('profileName').textContent = profile.name;
+            document.getElementById('profileStatus').textContent = profile.status;
+            
+            const profilePage = document.getElementById('profilePage');
+            profilePage.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)), url('${profile.bg}')`;
+            profilePage.classList.add('active');
+        }
+
+        function closeProfile() {
+            document.getElementById('profilePage').classList.remove('active');
+        }
+    </script>
+</body>
+</html>
