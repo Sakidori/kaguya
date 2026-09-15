@@ -270,12 +270,11 @@
             transform: scale(0.98);
         }
 
-        /* Reactions Displayed below the photo */
-        .message-reactions {
+        /* Reactions Displayed below individual photos */
+        .photo-wrapper {
             display: flex;
-            gap: 4px;
-            margin-top: 4px;
-            align-self: flex-start;
+            flex-direction: column;
+            align-items: flex-start;
         }
 
         .reaction-badge {
@@ -284,12 +283,13 @@
             padding: 2px 8px;
             font-size: 11.5px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 4px;
             border: 1px solid rgba(0,0,0,0.04);
             cursor: pointer;
             transition: background 0.1s;
+            margin-top: 4px;
         }
 
         .reaction-badge:hover {
@@ -692,53 +692,133 @@
                 </div>
             </div>
 
-            <!-- Incoming First Photo Message -->
+            <!-- Incoming First & Second Photos Next to Each Other with individual badges underneath -->
             <div class="message-row incoming">
                 <div style="width: 36px;"></div>
                 <div class="message-content-wrapper">
-                    <div class="message-bubble-group">
-                        <div class="photo-container">
-                            <div class="reaction-menu">
-                                <span class="reaction-icon" title="Thumbs Up">👍</span>
-                                <span class="reaction-icon" title="Heart">❤️</span>
-                                <span class="reaction-icon" title="Crying">😢</span>
+                    <div class="message-bubble-group" style="gap: 8px;">
+                        <!-- First Photo Wrapper -->
+                        <div class="photo-wrapper">
+                            <div class="photo-container">
+                                <div class="reaction-menu">
+                                    <span class="reaction-icon" title="Thumbs Up">👍</span>
+                                    <span class="reaction-icon" title="Heart">❤️</span>
+                                    <span class="reaction-icon" title="Crying">😢</span>
+                                </div>
+                                <div class="photo-bubble" onclick="openLightbox('photo.webp')">
+                                    <img src="photo.webp" alt="Group photo 1">
+                                </div>
                             </div>
-                            <div class="photo-bubble" onclick="openLightbox('photo.webp')">
-                                <img src="photo.webp" alt="Group photo 1">
+                            <div class="reaction-badge" onclick="openReactionModal('photo1')">
+                                👍 ❤️ 😢 3
                             </div>
                         </div>
-                        <div class="message-meta">
-                            <span>10:43 AM</span>
+
+                        <!-- Second Photo Wrapper -->
+                        <div class="photo-wrapper">
+                            <div class="photo-container">
+                                <div class="reaction-menu">
+                                    <span class="reaction-icon" title="Heart">❤️</span>
+                                </div>
+                                <div class="photo-bubble" onclick="openLightbox('photo2.webp')">
+                                    <img src="photo2.webp" alt="Group photo 2">
+                                </div>
+                            </div>
+                            <div class="reaction-badge" onclick="openReactionModal('photo2')">
+                                ❤️ 3
+                            </div>
                         </div>
-                    </div>
-                    <div class="message-reactions">
-                        <div class="reaction-badge" onclick="openReactionModal('photo1')">
-                            👍 ❤️ 😢 3
+
+                        <div class="message-meta" style="align-self: flex-end;">
+                            <span>10:44 AM</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Incoming Second Photo Message (photo2.webp with 1 heart icon and count 3) -->
+            <!-- Dinu posts study.webp (Swapped before Riku) -->
             <div class="message-row incoming">
-                <div style="width: 36px;"></div>
+                <img src="dinu.webp" alt="Dinu" class="avatar" onclick="openProfile('dinu')">
                 <div class="message-content-wrapper">
+                    <div class="sender-name" onclick="openProfile('dinu')">Dinu💰</div>
                     <div class="message-bubble-group">
                         <div class="photo-container">
                             <div class="reaction-menu">
+                                <span class="reaction-icon" title="Thumbs Up">👍</span>
                                 <span class="reaction-icon" title="Heart">❤️</span>
                             </div>
-                            <div class="photo-bubble" onclick="openLightbox('photo2.webp')">
-                                <img src="photo2.webp" alt="Group photo 2">
+                            <div class="photo-bubble" onclick="openLightbox('study.webp')">
+                                <img src="study.webp" alt="Dinu study">
                             </div>
                         </div>
                         <div class="message-meta">
-                            <span>10:44 AM</span>
+                            <span>10:45 AM</span>
                         </div>
                     </div>
-                    <div class="message-reactions">
-                        <div class="reaction-badge" onclick="openReactionModal('photo2')">
-                            ❤️ 3
+                </div>
+            </div>
+
+            <!-- Riku posts phone.webp (Swapped after Dinu) -->
+            <div class="message-row incoming">
+                <img src="riku.webp" alt="Riku" class="avatar" onclick="openProfile('riku')">
+                <div class="message-content-wrapper">
+                    <div class="sender-name" onclick="openProfile('riku')">Riku💯</div>
+                    <div class="message-bubble-group">
+                        <div class="photo-container">
+                            <div class="reaction-menu">
+                                <span class="reaction-icon" title="Thumbs Up">👍</span>
+                                <span class="reaction-icon" title="Heart">❤️</span>
+                            </div>
+                            <div class="photo-bubble" onclick="openLightbox('phone.webp')">
+                                <img src="phone.webp" alt="Riku phone">
+                            </div>
+                        </div>
+                        <div class="message-meta">
+                            <span>10:46 AM</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mark posts visa.webp -->
+            <div class="message-row incoming">
+                <img src="mark.webp" alt="Mark" class="avatar" onclick="openProfile('mark')">
+                <div class="message-content-wrapper">
+                    <div class="sender-name" onclick="openProfile('mark')">✨️Mark✨️</div>
+                    <div class="message-bubble-group">
+                        <div class="photo-container">
+                            <div class="reaction-menu">
+                                <span class="reaction-icon" title="Thumbs Up">👍</span>
+                                <span class="reaction-icon" title="Heart">❤️</span>
+                            </div>
+                            <div class="photo-bubble" onclick="openLightbox('visa.webp')">
+                                <img src="visa.webp" alt="Mark visa">
+                            </div>
+                        </div>
+                        <div class="message-meta">
+                            <span>10:47 AM</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kaguya posts reel.webp -->
+            <div class="message-row incoming">
+                <img src="kaguya.webp" alt="Kaguya" class="avatar" onclick="openProfile('kaguya')">
+                <div class="message-content-wrapper">
+                    <div class="sender-name" onclick="openProfile('kaguya')">Kaguya🌙👑</div>
+                    <div class="message-bubble-group">
+                        <div class="photo-container">
+                            <div class="reaction-menu">
+                                <span class="reaction-icon" title="Thumbs Up">👍</span>
+                                <span class="reaction-icon" title="Heart">❤️</span>
+                            </div>
+                            <div class="photo-bubble" onclick="openLightbox('reel.webp')">
+                                <img src="reel.webp" alt="Kaguya reel">
+                            </div>
+                        </div>
+                        <div class="message-meta">
+                            <span>10:48 AM</span>
                         </div>
                     </div>
                 </div>
