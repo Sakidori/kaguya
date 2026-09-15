@@ -208,7 +208,7 @@
             border-top-left-radius: 4px;
         }
 
-        /* Photo Message Container with Reaction Pop-up */
+        /* Photo Message Container */
         .photo-container {
             position: relative;
         }
@@ -229,6 +229,12 @@
             transition: opacity 0.2s ease, transform 0.2s ease;
             transform: translateY(6px);
             z-index: 20;
+        }
+
+        .reaction-menu.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
         }
 
         .reaction-icon {
@@ -686,31 +692,53 @@
                 </div>
             </div>
 
-            <!-- Incoming Photo Message with Reactions underneath -->
+            <!-- Incoming First Photo Message -->
             <div class="message-row incoming">
                 <div style="width: 36px;"></div>
                 <div class="message-content-wrapper">
                     <div class="message-bubble-group">
                         <div class="photo-container">
-                            <!-- Pop-up Reaction Menu -->
                             <div class="reaction-menu">
                                 <span class="reaction-icon" title="Thumbs Up">👍</span>
                                 <span class="reaction-icon" title="Heart">❤️</span>
                                 <span class="reaction-icon" title="Crying">😢</span>
                             </div>
-                            <!-- Photo Bubble -->
                             <div class="photo-bubble" onclick="openLightbox('photo.webp')">
-                                <img src="photo.webp" alt="Group photo">
+                                <img src="photo.webp" alt="Group photo 1">
                             </div>
                         </div>
                         <div class="message-meta">
                             <span>10:43 AM</span>
                         </div>
                     </div>
-                    <!-- Visible Reactions Displayed Under the Photo -->
                     <div class="message-reactions">
-                        <div class="reaction-badge" onclick="openReactionModal()">
+                        <div class="reaction-badge" onclick="openReactionModal('photo1')">
                             👍 ❤️ 😢 3
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Incoming Second Photo Message (photo2.webp with 1 heart icon and count 3) -->
+            <div class="message-row incoming">
+                <div style="width: 36px;"></div>
+                <div class="message-content-wrapper">
+                    <div class="message-bubble-group">
+                        <div class="photo-container">
+                            <div class="reaction-menu">
+                                <span class="reaction-icon" title="Heart">❤️</span>
+                            </div>
+                            <div class="photo-bubble" onclick="openLightbox('photo2.webp')">
+                                <img src="photo2.webp" alt="Group photo 2">
+                            </div>
+                        </div>
+                        <div class="message-meta">
+                            <span>10:44 AM</span>
+                        </div>
+                    </div>
+                    <div class="message-reactions">
+                        <div class="reaction-badge" onclick="openReactionModal('photo2')">
+                            ❤️ 3
                         </div>
                     </div>
                 </div>
@@ -741,31 +769,8 @@
         <div class="reaction-modal" id="reactionModal" onclick="closeReactionModal(event)">
             <div class="reaction-modal-content" onclick="event.stopPropagation()">
                 <div class="reaction-modal-title">Reactions</div>
-                <div class="reaction-user-list">
-                    <!-- Riku -->
-                    <div class="reaction-user-item">
-                        <div class="reaction-user-info" onclick="openProfile('riku')">
-                            <img src="riku.webp" alt="Riku" class="reaction-user-avatar">
-                            <span class="reaction-user-name">Riku💯</span>
-                        </div>
-                        <span class="reaction-user-emoji">👍</span>
-                    </div>
-                    <!-- Mark -->
-                    <div class="reaction-user-item">
-                        <div class="reaction-user-info" onclick="openProfile('mark')">
-                            <img src="mark.webp" alt="Mark" class="reaction-user-avatar">
-                            <span class="reaction-user-name">✨️Mark✨️</span>
-                        </div>
-                        <span class="reaction-user-emoji">❤️</span>
-                    </div>
-                    <!-- Dinu -->
-                    <div class="reaction-user-item">
-                        <div class="reaction-user-info" onclick="openProfile('dinu')">
-                            <img src="dinu.webp" alt="Dinu" class="reaction-user-avatar">
-                            <span class="reaction-user-name">Dinu💰</span>
-                        </div>
-                        <span class="reaction-user-emoji">😢</span>
-                    </div>
+                <div class="reaction-user-list" id="reactionUserList">
+                    <!-- Dynamic List Populated via JS -->
                 </div>
                 <button class="reaction-modal-close" onclick="closeReactionModal()">OK</button>
             </div>
@@ -830,6 +835,19 @@
             }
         };
 
+        const reactionData = {
+            photo1: [
+                { key: 'riku', name: 'Riku💯', avatar: 'riku.webp', emoji: '👍' },
+                { key: 'mark', name: '✨️Mark✨️', avatar: 'mark.webp', emoji: '❤️' },
+                { key: 'dinu', name: 'Dinu💰', avatar: 'dinu.webp', emoji: '😢' }
+            ],
+            photo2: [
+                { key: 'riku', name: 'Riku💯', avatar: 'riku.webp', emoji: '❤️' },
+                { key: 'mark', name: '✨️Mark✨️', avatar: 'mark.webp', emoji: '❤️' },
+                { key: 'dinu', name: 'Dinu💰', avatar: 'dinu.webp', emoji: '❤️' }
+            ]
+        };
+
         function openLightbox(imgSrc) {
             const lightbox = document.getElementById('lightbox');
             const lightboxImg = document.getElementById('lightbox-img');
@@ -842,7 +860,24 @@
             lightbox.classList.remove('active');
         }
 
-        function openReactionModal() {
+        function openReactionModal(photoKey) {
+            const listContainer = document.getElementById('reactionUserList');
+            listContainer.innerHTML = '';
+
+            const reactions = reactionData[photoKey] || [];
+            reactions.forEach(item => {
+                const userItem = document.createElement('div');
+                userItem.className = 'reaction-user-item';
+                userItem.innerHTML = `
+                    <div class="reaction-user-info" onclick="openProfile('${item.key}')">
+                        <img src="${item.avatar}" alt="${item.name}" class="reaction-user-avatar">
+                        <span class="reaction-user-name">${item.name}</span>
+                    </div>
+                    <span class="reaction-user-emoji">${item.emoji}</span>
+                `;
+                listContainer.appendChild(userItem);
+            });
+
             document.getElementById('reactionModal').classList.add('active');
         }
 
@@ -854,10 +889,8 @@
             const profile = profiles[userKey];
             if (!profile) return;
 
-            // Close the reaction modal if it's open so it doesn't block the view
             closeReactionModal();
 
-            // Set dynamic profile details
             document.getElementById('profileAvatar').src = profile.avatar;
             document.getElementById('profileName').textContent = profile.name;
             document.getElementById('profileStatus').textContent = profile.status;
