@@ -361,7 +361,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.95);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -369,6 +369,7 @@
             pointer-events: none;
             transition: opacity 0.25s ease;
             z-index: 100;
+            touch-action: pan-y;
         }
 
         .lightbox.active {
@@ -377,10 +378,11 @@
         }
 
         .lightbox img {
-            max-width: 92%;
-            max-height: 82%;
+            max-width: 90%;
+            max-height: 80%;
             border-radius: 6px;
             object-fit: contain;
+            transition: transform 0.2s ease, opacity 0.2s ease;
         }
 
         .lightbox-close {
@@ -392,6 +394,46 @@
             cursor: pointer;
             background: none;
             border: none;
+            z-index: 102;
+        }
+
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: white;
+            font-size: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 102;
+            transition: background 0.2s;
+        }
+
+        .lightbox-nav:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .lightbox-prev {
+            left: 16px;
+        }
+
+        .lightbox-next {
+            right: 16px;
+        }
+
+        .lightbox-counter {
+            position: absolute;
+            bottom: 30px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            letter-spacing: 1px;
         }
 
         /* LINE Style Reaction Details Modal */
@@ -705,7 +747,7 @@
                                     <span class="reaction-icon" title="Heart">❤️</span>
                                     <span class="reaction-icon" title="Crying">😢</span>
                                 </div>
-                                <div class="photo-bubble" onclick="openLightbox('photo.webp')">
+                                <div class="photo-bubble" onclick="openLightbox(0)">
                                     <img src="photo.webp" alt="Group photo 1">
                                 </div>
                             </div>
@@ -720,7 +762,7 @@
                                 <div class="reaction-menu">
                                     <span class="reaction-icon" title="Heart">❤️</span>
                                 </div>
-                                <div class="photo-bubble" onclick="openLightbox('photo2.webp')">
+                                <div class="photo-bubble" onclick="openLightbox(1)">
                                     <img src="photo2.webp" alt="Group photo 2">
                                 </div>
                             </div>
@@ -736,7 +778,7 @@
                 </div>
             </div>
 
-            <!-- Dinu posts study.webp (Swapped before Riku) -->
+            <!-- Dinu posts study.webp -->
             <div class="message-row incoming">
                 <img src="dinu.webp" alt="Dinu" class="avatar" onclick="openProfile('dinu')">
                 <div class="message-content-wrapper">
@@ -747,7 +789,7 @@
                                 <span class="reaction-icon" title="Thumbs Up">👍</span>
                                 <span class="reaction-icon" title="Heart">❤️</span>
                             </div>
-                            <div class="photo-bubble" onclick="openLightbox('study.webp')">
+                            <div class="photo-bubble" onclick="openLightbox(2)">
                                 <img src="study.webp" alt="Dinu study">
                             </div>
                         </div>
@@ -758,7 +800,7 @@
                 </div>
             </div>
 
-            <!-- Riku posts phone.webp (Swapped after Dinu) -->
+            <!-- Riku posts phone.webp -->
             <div class="message-row incoming">
                 <img src="riku.webp" alt="Riku" class="avatar" onclick="openProfile('riku')">
                 <div class="message-content-wrapper">
@@ -769,7 +811,7 @@
                                 <span class="reaction-icon" title="Thumbs Up">👍</span>
                                 <span class="reaction-icon" title="Heart">❤️</span>
                             </div>
-                            <div class="photo-bubble" onclick="openLightbox('phone.webp')">
+                            <div class="photo-bubble" onclick="openLightbox(3)">
                                 <img src="phone.webp" alt="Riku phone">
                             </div>
                         </div>
@@ -791,7 +833,7 @@
                                 <span class="reaction-icon" title="Thumbs Up">👍</span>
                                 <span class="reaction-icon" title="Heart">❤️</span>
                             </div>
-                            <div class="photo-bubble" onclick="openLightbox('visa.webp')">
+                            <div class="photo-bubble" onclick="openLightbox(4)">
                                 <img src="visa.webp" alt="Mark visa">
                             </div>
                         </div>
@@ -813,7 +855,7 @@
                                 <span class="reaction-icon" title="Thumbs Up">👍</span>
                                 <span class="reaction-icon" title="Heart">❤️</span>
                             </div>
-                            <div class="photo-bubble" onclick="openLightbox('reel.webp')">
+                            <div class="photo-bubble" onclick="openLightbox(5)">
                                 <img src="reel.webp" alt="Kaguya reel">
                             </div>
                         </div>
@@ -839,10 +881,13 @@
             </button>
         </div>
 
-        <!-- Lightbox for Image Zoom -->
-        <div class="lightbox" id="lightbox" onclick="closeLightbox()">
-            <button class="lightbox-close">&times;</button>
+        <!-- Lightbox for Image Zoom with Swipe & Arrow Support -->
+        <div class="lightbox" id="lightbox">
+            <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+            <button class="lightbox-nav lightbox-prev" onclick="changeImage(-1)">&#10094;</button>
             <img id="lightbox-img" src="" alt="Zoomed photo">
+            <button class="lightbox-nav lightbox-next" onclick="changeImage(1)">&#10095;</button>
+            <div class="lightbox-counter" id="lightboxCounter">1 / 6</div>
         </div>
 
         <!-- Unified LINE Reaction Details Modal -->
@@ -928,17 +973,84 @@
             ]
         };
 
-        function openLightbox(imgSrc) {
-            const lightbox = document.getElementById('lightbox');
-            const lightboxImg = document.getElementById('lightbox-img');
-            lightboxImg.src = imgSrc;
-            lightbox.classList.add('active');
+        // Array of all photo sources in chronological order
+        const photos = [
+            "photo.webp",
+            "photo2.webp",
+            "study.webp",
+            "phone.webp",
+            "visa.webp",
+            "reel.webp"
+        ];
+        let currentPhotoIndex = 0;
+
+        function openLightbox(index) {
+            currentPhotoIndex = index;
+            updateLightboxImage();
+            document.getElementById('lightbox').classList.add('active');
         }
 
         function closeLightbox() {
-            const lightbox = document.getElementById('lightbox');
-            lightbox.classList.remove('active');
+            document.getElementById('lightbox').classList.remove('active');
         }
+
+        function changeImage(direction) {
+            currentPhotoIndex += direction;
+            if (currentPhotoIndex < 0) {
+                currentPhotoIndex = photos.length - 1; // loop to last
+            } else if (currentPhotoIndex >= photos.length) {
+                currentPhotoIndex = 0; // loop to first
+            }
+            updateLightboxImage();
+        }
+
+        function updateLightboxImage() {
+            const imgEl = document.getElementById('lightbox-img');
+            const counterEl = document.getElementById('lightboxCounter');
+            
+            // Subtle fade effect on switch
+            imgEl.style.opacity = '0';
+            setTimeout(() => {
+                imgEl.src = photos[currentPhotoIndex];
+                counterEl.textContent = `${currentPhotoIndex + 1} / ${photos.length}`;
+                imgEl.style.opacity = '1';
+            }, 100);
+        }
+
+        // Touch & Swipe Support for Lightbox
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        const lightboxEl = document.getElementById('lightbox');
+        lightboxEl.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, {passive: true});
+
+        lightboxEl.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, {passive: true});
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            if (touchEndX < touchStartX - swipeThreshold) {
+                // Swiped Left -> Next Image
+                changeImage(1);
+            }
+            if (touchEndX > touchStartX + swipeThreshold) {
+                // Swiped Right -> Previous Image
+                changeImage(-1);
+            }
+        }
+
+        // Keyboard arrow support as well
+        document.addEventListener('keydown', e => {
+            const lightbox = document.getElementById('lightbox');
+            if (!lightbox.classList.contains('active')) return;
+            if (e.key === 'ArrowLeft') changeImage(-1);
+            if (e.key === 'ArrowRight') changeImage(1);
+            if (e.key === 'Escape') closeLightbox();
+        });
 
         function openReactionModal(photoKey) {
             const listContainer = document.getElementById('reactionUserList');
